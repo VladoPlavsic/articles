@@ -1,0 +1,31 @@
+<section class="relative min-h-screen flex flex-col">
+  <canvas class="matrix-rain"></canvas>
+  <div class="absolute top-4 right-4 z-20">
+    <label class="relative inline-flex items-center cursor-pointer">
+      <input type="checkbox" class="sr-only peer toggle-rain" checked />
+      <div class="w-11 h-6 glassy border border-green-900/30 rounded-full peer-checked:bg-green-900/50 transition-all duration-300">
+      </div>
+      <div class="absolute left-1 top-1 w-4 h-4 bg-green-400 rounded-full transition-transform duration-300 peer-checked:translate-x-5">
+      </div>
+      <span class="ml-3 text-sm font-mono text-green-400 toggle-label">Rain On</span>
+    </label>
+  </div>
+  <%= if @article do %>
+    <article class="max-w-4xl mx-auto p-8 glassy border border-green-900/30 rounded-lg shadow-md mt-8 z-10">
+      <h1 class="text-3xl font-bold text-green-400 mb-6">{@article["title"]}</h1>
+      <div class="prose prose-invert prose-lg text-gray-400 prose-headings:text-green-400 prose-strong:text-green-400 prose-code:bg-gray-800 prose-code:text-green-400 prose-code:px-2 prose-code:rounded prose-li:marker:text-green-400">
+        {raw(Earmark.as_html!(@article["content"]))}
+      </div>
+    </article>
+  <% else %>
+    <article class="max-w-4xl mx-auto p-8 glassy border border-green-900/30 rounded-lg shadow-md mt-8 z-10">
+      <h1 class="text-3xl font-bold text-green-400 mb-6">Article Not Found</h1>
+      <p class="text-gray-400">
+        No article found with the specified ID. Return to the
+        <a href={~p"/"} class="text-green-400 hover:underline">home page</a>
+        to view available articles.
+      </p>
+    </article>
+  <% end %>
+</section>
+

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Article Site</title>
+    <.live_title suffix=" · Phoenix Framework">{assigns[:page_title] || "Welcome"}</.live_title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
+    </script>
+  </head>
+  <body class="bg-black text-gray-400 font-mono">
+    {@inner_content}
+  </body>
+</html>
