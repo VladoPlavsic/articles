@@ -1,0 +1,128 @@
+name: Deploy App
+
+on:
+  push:
+    branches: ["master"]
+
+env:
+  MIX_ENV: prod
+  DEPLOY_PATH: /var/www/articles
+  DEPLOY_APP_NAME: articles
+  DEPLOY_DAEMON_NAME: articles-app
+  CLOUDFLARED_VERSION: 2025.8.1
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+
+      - name: Cache deps
+        id: cache-deps
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-elixir-deps
+        with:
+          path: deps
+          key: ubuntu-24.04-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}-${{ hashFiles('**/.tool-versions') }}
+          restore-keys: |
+            ubuntu-24.04-mix-${{ env.cache-name }}-
+
+      - name: Cache compiled build
+        id: cache-build
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-compiled-build
+        with:
+          path: _build
+          key: ubuntu-24.04-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}-${{ hashFiles('**/.tool-versions') }}
+          restore-keys: |
+            ubuntu-24.04-mix-${{ env.cache-name }}-
+            ubuntu-24.04-mix-
+
+      - name: Clean to rule out incremental build issues
+        if: github.run_attempt != '1'
+        run: |
+          mix deps.clean --all
+          mix clean
+        shell: sh
+
+      - name: Install dependencies
+        run: mix deps.get --only-prod
+
+      - name: Compile
+        run: mix compile
+
+      - name: Compile assets
+        run: mix assets.deploy
+
+      - name: Build release
+        run: mix release --overwrite
+
+      - name: Install cloudflared
+        run: |
+          wget -q https://github.com/cloudflare/cloudflared/releases/download/${{ env.CLOUDFLARED_VERSION }}/cloudflared-linux-amd64.deb
+          sudo dpkg -i cloudflared-linux-amd64.deb
+
+      - name: Deploy release with rsync over cloudflared SSH
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+        run: |
+          # Write SSH key to file for rsync/ssh
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          mkdir -p ~/.cloudflared
+          echo "$CLOUDFLARE_TOKEN" > ~/.cloudflared/ssh.v-core.dev-b81b2b7c026c6951daed7763b5d5a86daba909cc0601a9cc189b31aefb50bf51-token
+
+          # Define ProxyCommand for cloudflared
+          PROXY_CMD="cloudflared access ssh --hostname $SSH_HOST"
+
+          # Rsync the release (delete old files, archive mode, verbose, compress, exclude git)
+          rsync -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand=\"$PROXY_CMD\" -i ~/.ssh/id_rsa -p 22" \
+                --delete -avz --exclude='*.git*' ./_build/${{ env.MIX_ENV }}/rel/ \
+                $SSH_USER@$SSH_HOST:${{ env.DEPLOY_PATH }}
+
+      - name: Run migrations and restart app over cloudflared SSH
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+          DEPLOY_PATH: ${{ env.DEPLOY_PATH }}
+          MIX_ENV: ${{ env.MIX_ENV }}
+          DEPLOY_APP_NAME: ${{ env.DEPLOY_APP_NAME }}
+          DEPLOY_DAEMON_NAME: ${{ env.DEPLOY_DAEMON_NAME }}
+        run: |
+          # Reuse SSH key setup
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          mkdir -p ~/.cloudflared
+          echo "$CLOUDFLARE_TOKEN" > ~/.cloudflared/ssh.v-core.dev-b81b2b7c026c6951daed7763b5d5a86daba909cc0601a9cc189b31aefb50bf51-token
+
+          # Define ProxyCommand
+          PROXY_CMD="cloudflared access ssh --hostname $SSH_HOST"
+
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand=\"$PROXY_CMD\" -i ~/.ssh/id_rsa -p 22 $SSH_USER@$SSH_HOST "
+            sudo systemctl daemon-reload &&
+            sudo systemctl restart $DEPLOY_DAEMON_NAME &&
+            sudo systemctl status $DEPLOY_DAEMON_NAME
+          "
+# When add database, add this before daemon reload to migrate
+#       cd $DEPLOY_PATH &&
+#       export \$(cat .env | xargs) &&
+#       ./_build/$MIX_ENV/rel/$DEPLOY_APP_NAME/bin/$DEPLOY_APP_NAME eval 'YourApp.Release.migrate' &&
+
