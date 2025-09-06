@@ -117,9 +117,9 @@ jobs:
           PROXY_CMD="cloudflared access ssh --hostname $SSH_HOST"
 
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand=\"$PROXY_CMD\" -i ~/.ssh/id_rsa -p 22 $SSH_USER@$SSH_HOST "
-            sudo systemctl -u $SSH_USER daemon-reload &&
-            sudo systemctl -u $SSH_USER restart $DEPLOY_DAEMON_NAME &&
-            sudo systemctl -u $SSH_USER status $DEPLOY_DAEMON_NAME
+            sudo -u $SSH_USER sudo systemctl daemon-reload &&
+            sudo -u $SSH_USER sudo systemctl restart $DEPLOY_DAEMON_NAME &&
+            sudo -u $SSH_USER sudo systemctl status $DEPLOY_DAEMON_NAME
           "
 # When add database, add this before daemon reload to migrate
 #       cd $DEPLOY_PATH &&

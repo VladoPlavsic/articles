@@ -1,5 +1,5 @@
 defmodule Articles.Reader do
-  @articles_dir "priv/articles"
+  @articles_dir Path.join(:code.priv_dir(:articles), "/articles")
 
   def list_articles do
     case File.ls(@articles_dir) do
