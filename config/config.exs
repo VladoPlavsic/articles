@@ -20,7 +20,8 @@ config :articles, ArticlesWeb.Endpoint,
     layout: false
   ],
   pubsub_server: Articles.PubSub,
-  live_view: [signing_salt: "BGOw935T"]
+  live_view: [signing_salt: "BGOw935T"],
+  server: true
 
 # Configures the mailer
 #

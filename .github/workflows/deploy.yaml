@@ -6,7 +6,7 @@ on:
 
 env:
   MIX_ENV: prod
-  DEPLOY_PATH: /var/www/articles
+  DEPLOY_PATH: /var/www/v-core/
   DEPLOY_APP_NAME: articles
   DEPLOY_DAEMON_NAME: articles-app
   CLOUDFLARED_VERSION: 2025.8.1
@@ -117,9 +117,9 @@ jobs:
           PROXY_CMD="cloudflared access ssh --hostname $SSH_HOST"
 
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand=\"$PROXY_CMD\" -i ~/.ssh/id_rsa -p 22 $SSH_USER@$SSH_HOST "
-            sudo systemctl daemon-reload &&
-            sudo systemctl restart $DEPLOY_DAEMON_NAME &&
-            sudo systemctl status $DEPLOY_DAEMON_NAME
+            sudo systemctl -u $SSH_USER daemon-reload &&
+            sudo systemctl -u $SSH_USER restart $DEPLOY_DAEMON_NAME &&
+            sudo systemctl -u $SSH_USER status $DEPLOY_DAEMON_NAME
           "
 # When add database, add this before daemon reload to migrate
 #       cd $DEPLOY_PATH &&
