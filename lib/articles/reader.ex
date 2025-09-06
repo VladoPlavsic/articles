@@ -1,5 +1,7 @@
 defmodule Articles.Reader do
-  @articles_dir Path.join(:code.priv_dir(:articles), "/articles")
+  # TODO: Move this to config... or even better
+  # move it to database)
+  @articles_dir "/articles"
 
   def list_articles do
     case File.ls(@articles_dir) do
