@@ -1,0 +1,20 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Transparent background -->
+  <rect width="32" height="32" fill="transparent"/>
+  
+  <!-- Character streams (3 columns: letters, numbers, katakana) -->
+  <text x="4" y="8" fill="#00ff00" font-family="monospace" font-size="8" class="rain-stream" data-stream="1">A1カ</text>
+  <text x="14" y="8" fill="#00ff00" font-family="monospace" font-size="8" class="rain-stream" data-stream="2">9Zタ</text>
+  <text x="24" y="8" fill="#00ff00" font-family="monospace" font-size="8" class="rain-stream" data-stream="3">X7ナ</text>
+  
+  <!-- Glow filter for neon effect -->
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+</svg>

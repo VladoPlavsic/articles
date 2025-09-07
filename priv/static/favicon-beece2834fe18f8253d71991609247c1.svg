@@ -1,0 +1,30 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Transparent background -->
+  <rect width="32" height="32" fill="transparent"/>
+  
+  <!-- Stream 1 (x=8) -->
+  <text x="8" y="16" text-anchor="middle" fill="#00ff00" font-family="monospace" font-size="8" class="rain-char" data-char="1">A</text>
+  <text x="8" y="16" text-anchor="middle" fill="#00ff00" font-family="monospace" font-size="8" class="rain-char" data-char="2">1</text>
+  <text x="8" y="16" text-anchor="middle" fill="#00ff00" font-family="monospace" font-size="8" class="rain-char" data-char="3">カ</text>
+  
+  <!-- Stream 2 (x=16) -->
+  <text x="16" y="16" text-anchor="middle" fill="#00ff00" font-family="monospace" font-size="8" class="rain-char" data-char="1">9</text>
+  <text x="16" y="16" text-anchor="middle" fill="#00ff00" font-family="monospace" font-size="8" class="rain-char" data-char="2">Z</text>
+  <text x="16" y="16" text-anchor="middle" fill="#00ff00" font-family="monospace" font-size="8" class="rain-char" data-char="3">タ</text>
+  
+  <!-- Stream 3 (x=24) -->
+  <text x="24" y="16" text-anchor="middle" fill="#00ff00" font-family="monospace" font-size="8" class="rain-char" data-char="1">X</text>
+  <text x="24" y="16" text-anchor="middle" fill="#00ff00" font-family="monospace" font-size="8" class="rain-char" data-char="2">7</text>
+  <text x="24" y="16" text-anchor="middle" fill="#00ff00" font-family="monospace" font-size="8" class="rain-char" data-char="3">ナ</text>
+  
+  <!-- Glow filter for neon effect -->
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+</svg>
