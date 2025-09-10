@@ -2,7 +2,7 @@ defmodule ArticlesWeb.PageController do
   use ArticlesWeb, :controller
 
   def home(conn, _params) do
-    articles = Articles.Reader.list_article_title_id_pairs()
+    articles = Articles.Reader.list_articles()
     render(conn, :home, articles: articles, layout: {ArticlesWeb.Layouts, :root})
   end
 
