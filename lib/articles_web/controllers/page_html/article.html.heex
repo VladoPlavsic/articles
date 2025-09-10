@@ -12,9 +12,9 @@
   </div>
   <%= if @article do %>
     <article class="max-w-4xl mx-auto p-8 glassy border border-green-900/30 rounded-lg shadow-md mt-8 z-10">
-      <h1 class="text-3xl font-bold text-green-400 mb-6">{@article["title"]}</h1>
+      <h1 class="text-3xl font-bold text-green-400 mb-6"><span class="font-normal">({@article.published_at})</span> {@article.title}</h1>
       <div class="prose prose-invert prose-lg text-gray-400 prose-headings:text-green-400 prose-strong:text-green-400 prose-code:bg-gray-800 prose-code:text-green-400 prose-code:px-2 prose-code:rounded prose-li:marker:text-green-400">
-        {raw(Earmark.as_html!(@article["content"]))}
+        {raw(Earmark.as_html!(@article.md_content))}
       </div>
     </article>
   <% else %>
